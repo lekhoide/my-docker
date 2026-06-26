@@ -1,0 +1,16 @@
+docker ps -a
+docker inspect <image/container>
+docker network ls
+
+# When update compose and want to container update
+docker compose up -d
+
+# When update Dockerfile and want to container update
+docker compose build
+docker compose up -d
+# 
+docker compose up -d --build
+
+# See log
+docker compose logs -f <service>
+docker logs -f <container>

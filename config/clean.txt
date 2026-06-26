@@ -1,0 +1,8 @@
+docker system df -v
+docker container prune
+docker image prune -a
+docker volume prune -a
+docker network prune
+docker builder prune -a
+
+docker system prune -a --volumes

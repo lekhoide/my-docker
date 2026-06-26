@@ -1,0 +1,51 @@
+name: mydocker
+
+services:
+  postgres15:
+    container_name: docker-postgres15
+    image: pgvector/pgvector:pg15
+    shm_size: "256mb"
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_INITDB_WALDIR: /var/lib/postgresql/wal
+      POSTGRES_INITDB_ARGS: "--data-checksums --encoding=UTF8 --locale=en_US.UTF-8"
+      POSTGRES_HOST_AUTH_METHOD: trust
+    restart: always
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data/pgdata
+      - odoo-wal-data:/var/lib/postgresql/wal
+    ports:
+      - "5432:5432"
+
+  odoo19:
+    container_name: docker-odoo19
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile
+    volumes:
+      - ./config/odoo.conf:/opt/odoo19/config/odoo.conf
+      - ./data:/opt/odoo19/data
+      - ./workspaces/extra-addons:/opt/odoo19/workspaces/extra-addons
+    restart: always
+    depends_on:
+      - postgres15
+    ports:
+      - "5678:5678"
+      - "8069:8069"
+      - "8072:8072"
+    environment:
+      DEV_MODE: hot-reload
+
+  adminer:
+    container_name: docker-adminer
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+
+volumes:
+  odoo-db-data:
+  odoo-wal-data:

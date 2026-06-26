@@ -1,0 +1,2 @@
+docker exec -it <container> psql -U <postgres-role> -d <postgres-database>
+

@@ -1,0 +1,70 @@
+# Clone one branch in all branch
+git clone --depth 1 -b 19.0 --single-branch https://github.com/odoo/odoo.git
+
+# See all port has used
+sudo netstat -tulnp
+
+# Check volume use for container
+docker ps -a --filter volume=<volume-name>
+
+# Run dockerhub and log-in to container
+docker run --rm -it <docker-hub> bash
+
+# Different docker run and docker start
+docker run: create new container from image, use when you new config to test
+docker start: restart container exists has status Exited, use old config
+
+# Check container when has issue and make Exited
+docker logs <container>: see log in container
+docker start <container> or docker compose start <container>
+docker logs -f <container>
+
+# access to shell container running
+docker exec -it <container> bash
+
+# create new container from image and access to shell
+docker run --rm -it <image> bash
+
+# See group folder and file
+ls -l
+
+"""
+    build-essential: compile C/C++ extension when pip install
+    python3-dev: include files to build C extension
+    python3-venv: create virtrual environment
+    python3-pip: package manager python
+    curl: tools for download http/https
+    ca-certificates: ssl certificate bundle
+    libpq-dev: postgreSQL client
+    libldap2-dev: LDAP client dev library
+    libsasl2-dev: SASL authentication layer
+    debinstall: custom system dependencies layer
+    last: Cleanup
+"""
+
+# Build image and see logs in terminal
+docker compose build --progres=plain
+# Build container from image and don't run terminal
+docker compose up -d
+
+# create container from compose.yaml
+docker compose -f compose.yaml run --rm <service> bash
+
+# Check in container odoo
+psql -h postgres15 -U odoo -d postgres
+
+docker network connect <network_name> <container>
+
+----------------------------
+
+docker compose build: create image
+
+docker compose build --progress=plain: create image and see log
+
+docker compose up: create image and container and login to shell
+
+docker compose up -d: create image and container and run rock
+
+docker compose up -d --build: creat/update image and run rock
+
+docker compose config: see all config service
