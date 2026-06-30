@@ -26,8 +26,8 @@ services:
       context: ./
       dockerfile: docker/Dockerfile
     volumes:
+      - odoo-filestore:/opt/odoo19/data
       - ./config/odoo.conf:/opt/odoo19/config/odoo.conf
-      - ./data:/opt/odoo19/data
       - ./workspaces/extra-addons:/opt/odoo19/workspaces/extra-addons
     restart: always
     depends_on:
@@ -49,3 +49,4 @@ services:
 volumes:
   odoo-db-data:
   odoo-wal-data:
+  odoo-filestore:

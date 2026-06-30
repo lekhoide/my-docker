@@ -1,2 +1,3 @@
 workspaces/odoo/*
-data/*
+workspaces/.odoo-bare/
+data/Odoo/

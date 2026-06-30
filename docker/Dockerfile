@@ -2,25 +2,23 @@ FROM ubuntu:24.04
 LABEL maintainer="lekhoide@gmail.com"
 
 # variable to build
-ARG ODOO_USER=odoo
-ARG ODOO_HOME=/opt/odoo19
-ARG ODOO_VERSION=19.0
+ARG ODOO_USER
+ARG ODOO_HOME
+ARG ODOO_VERSION
+ARG ODOO_UID
+ARG ODOO_GID
 
 ENV ODOO_HOME=${ODOO_HOME}
 
-RUN userdel -r ubuntu
+RUN userdel -r ubuntu || true
 
 # create group and create folder and update group
 RUN mkdir -p ${ODOO_HOME}/config
 RUN mkdir -p ${ODOO_HOME}/scripts
 RUN mkdir -p ${ODOO_HOME}/workspaces
-RUN mkdir -p ${ODOO_HOME}/data
 
-RUN if id ubuntu &>/dev/null; then \
-        userdel -r ubuntu 2>/dev/null || true; \
-    fi \
-    && groupadd -g 1000 "${ODOO_USER}" \
-    && useradd -m -d "${ODOO_HOME}" -u 1000 -g 1000 "${ODOO_USER}" \
+RUN groupadd -g ${ODOO_GID} "${ODOO_USER}" \
+    && useradd -m -d "${ODOO_HOME}" -u ${ODOO_UID} -g ${ODOO_GID} "${ODOO_USER}" \
     && chown -R ${ODOO_USER}:${ODOO_USER} ${ODOO_HOME}
 
 COPY --chown=${ODOO_USER}:${ODOO_USER} ./workspaces/odoo \
