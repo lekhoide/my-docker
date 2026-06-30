@@ -11,3 +11,6 @@ data
 .idea
 
 .env
+
+workspaces/.odoo-bare
+workspaces/odoo/.git
