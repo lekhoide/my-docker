@@ -55,6 +55,9 @@ psql -h postgres15 -U odoo -d postgres
 
 docker network connect <network_name> <container>
 
+# when container had staus exited and networkd delete
+docker compose up -d --force-recreate
+
 ----------------------------
 
 docker compose build: create image

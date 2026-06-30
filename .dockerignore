@@ -1,0 +1,13 @@
+.git
+
+.vscode
+
+__pycache__
+
+*.pyc
+
+data
+
+.idea
+
+.env

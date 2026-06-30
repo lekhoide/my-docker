@@ -6,6 +6,8 @@ ARG ODOO_USER=odoo
 ARG ODOO_HOME=/opt/odoo19
 ARG ODOO_VERSION=19.0
 
+ENV ODOO_HOME=${ODOO_HOME}
+
 RUN userdel -r ubuntu
 
 # create group and create folder and update group
@@ -53,5 +55,5 @@ RUN python3 -m venv "${ODOO_HOME}/venv" \
 
 USER ${ODOO_USER}
 
-ENTRYPOINT ["/opt/odoo19/scripts/entrypoint.sh"]
+ENTRYPOINT $ODOO_HOME/scripts/entrypoint.sh
 CMD []
