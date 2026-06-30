@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-ODOO_HOME="/opt/odoo19"
+ODOO_HOME="${ODOO_HOME}"
 PYTHON_VENV="${ODOO_HOME}/venv/bin/python3"
 ODOO_BIN="${ODOO_HOME}/workspaces/odoo/odoo-bin"
 ODOO_RC="${ODOO_HOME}/config/odoo.conf"

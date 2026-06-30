@@ -16,6 +16,7 @@ RUN userdel -r ubuntu || true
 RUN mkdir -p ${ODOO_HOME}/config
 RUN mkdir -p ${ODOO_HOME}/scripts
 RUN mkdir -p ${ODOO_HOME}/workspaces
+RUN mkdir -p ${ODOO_HOME}/data
 
 RUN groupadd -g ${ODOO_GID} "${ODOO_USER}" \
     && useradd -m -d "${ODOO_HOME}" -u ${ODOO_UID} -g ${ODOO_GID} "${ODOO_USER}" \

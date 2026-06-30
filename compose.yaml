@@ -25,6 +25,12 @@ services:
     build:
       context: ./
       dockerfile: docker/Dockerfile
+      args:
+        ODOO_USER: ${ODOO_USER}
+        ODOO_HOME: ${ODOO_HOME}
+        ODOO_VERSION: ${ODOO_VERSION}
+        ODOO_UID: ${ODOO_UID}
+        ODOO_GID: ${ODOO_GID}
     volumes:
       - odoo-filestore:/opt/odoo19/data
       - ./config/odoo.conf:/opt/odoo19/config/odoo.conf
@@ -38,6 +44,7 @@ services:
       - "8072:8072"
     environment:
       DEV_MODE: hot-reload
+      ODOO_HOME: ${ODOO_HOME}
 
   adminer:
     container_name: docker-adminer
