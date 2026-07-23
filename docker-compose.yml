@@ -1,0 +1,35 @@
+services:
+  ghostty:
+    container_name: ghostty-service
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        GHOSTTY_USER: dekute
+        GHOSTTY_UID: 1000
+        GHOSTTY_GID: 1000
+
+    image: ghostty-service:latest
+
+    environment:
+      DISPLAY: ${DISPLAY}
+      WAYLAND_DISPLAY: ${WAYLAND_DISPLAY}
+      XDG_RUNTIME_DIR: /tmp/runtime
+
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY}:/tmp/runtime/${WAYLAND_DISPLAY}
+      - /usr/bin/docker:/usr/bin/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./ghostty-config:/home/dekute/.config/ghostty
+    
+    group_add:
+      - "984"
+
+    network_mode: host
+
+    stdin_open: true
+    tty: true
+
+    restart: unless-stopped
