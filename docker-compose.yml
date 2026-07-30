@@ -1,0 +1,13 @@
+services:
+  devbox:
+    build: .
+    image: chelsea:latest
+    ports:
+      - "6080:6080"
+    volumes:
+      - devbox-home:/root
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+volumes:
+  devbox-home:
