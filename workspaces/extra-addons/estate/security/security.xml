@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Basic Security View -->
+    <!-- <record id="_group_user" model="res.groups">
+        <field name="name"></field>
+        <field name="category_id" ref=""/>
+        <field name="implied_ids" eval=""/>
+        <field name="comment"></field>
+    </record> -->
+
+
+    <!-- Basic Category View -->
+    <!-- <record id="base.module_category_" model="ir.module.category">
+        <field name="description"></field>
+        <field name="sequence">5</field>
+    </record> -->
+
+        <!-- Basic Rule View -->
+    <!-- <record id="" model="ir.rule">
+        <field name="name"></field>
+        <field name="model_id" ref=""/>
+        <field name="perm_read" eval=""/>
+        <field name="perm_write" eval=""/>
+        <field name="perm_create" eval=""/>
+        <field name="perm_unlink" eval=""/>
+        <field name="groups" eval=""/>
+        <field name="domain_force"></field>
+    </record> -->
+
+    <record id="privilege_real_estate_brokerage" model="res.groups.privilege">
+        <field name="name">Real Estate Brokerage</field>
+        <field name="description">Help you manage your modules</field>
+        <field name="sequence">5</field>
+    </record>
+
+    <record id="estate_group_user" model="res.groups">
+        <field name="name">Agent</field>
+        <field name="privilege_id" ref="privilege_real_estate_brokerage"/>
+        <field name="comment">Manage the properties under their care</field>
+    </record>
+
+    <record id="estate_group_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="privilege_id" ref="privilege_real_estate_brokerage"/>
+        <field name="implied_ids" eval="[Command.link(ref('estate_group_user'))]"/>
+        <field name="implied_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        <field name="comment">Configure the system</field>
+    </record>
+
+    <record id="estate_group_user_rule" model="ir.rule">
+        <field name="name">Limits Agents with saleperson</field>
+        <field name="model_id" ref="model_estate_property"/>
+        <field name="groups" eval="[Command.link(ref('estate_group_user'))]"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="domain_force">[
+            '|', ('user_id', '=', False),
+            ('user_id', '=', user.id)
+            ]
+        </field>
+    </record>
+
+    <record id="estate_group_manager_rule" model="ir.rule">
+        <field name="name">Manager with saleperson</field>
+        <field name="model_id" ref="model_estate_property"/>
+        <field name="groups" eval="[(4, ref('estate_group_manager'))]"/>
+    </record>
+
+    <record id="estate_multi_company_rule" model="ir.rule">
+        <field name="name">Estate Multi Company</field>
+        <field name="model_id" ref="model_estate_property"/>
+        <field name="domain_force">[
+            '|', ('company_id', '=', False),
+            ('company_id', 'in', company_ids)
+            ]
+        </field>
+    </record>
+
+</odoo>

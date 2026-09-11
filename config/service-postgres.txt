@@ -1,2 +1,4 @@
 docker exec -it <container> psql -U <postgres-role> -d <postgres-database>
 
+docker exec -it docker-postgres15  psql -U odoo -d m6419
+

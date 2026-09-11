@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <t t-name="awesome_owl.playground">
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-primary text-white text-center py-3">
+                            <h4 class="mb-0"><i
+                                    class="fa fa-owl me-2"
+                                />Owl Playground</h4>
+                        </div>
+                        <div class="card-body p-4">
+                            <!-- Counter Display -->
+                            <div class="text-center mb-4">
+                                <h1 class="display-1 fw-bold text-primary mb-0">
+                                    <t t-esc="state.value" />
+                                </h1>
+                                <p
+                                    class="text-muted text-uppercase fw-semibold mb-0"
+                                >Total Clicks</p>
+                            </div>
+
+                            <hr class="my-4 opacity-25" />
+
+                            <!-- Actions -->
+                            <div class="d-grid mb-4">
+                                <button
+                                    class="btn btn-lg btn-primary shadow-sm py-3"
+                                    t-on-click.prevent="increment"
+                                >
+                                    <i
+                                        class="fa fa-plus-circle me-2"
+                                    />Increment Main Counter
+                                </button>
+                            </div>
+
+                            <hr class="my-4 opacity-25" />
+
+                            <!-- Sub-component -->
+                            <div class="mt-4">
+                                <Counter valueCounter="5" onChange="(val) => this.incrementSum(val)" />
+                            </div>
+
+                            <hr class="my-4 opacity-25" />
+
+                            <!-- Sub-component -->
+                            <div class="mt-4">
+                                <Counter valueCounter="10" onChange="(val) => this.incrementSum(val)"/>
+                            </div>
+
+                            <div class="mt-4">
+                                <p>Total: <t t-esc="state.sumCounter"/></p>
+                            </div>
+
+                            <hr class="my-4 opacity-25" />
+
+                            <div class="mt-4">
+                                <Card title="'Card 1'"/>
+                            </div>
+
+                            <hr class="my-4 opacity-25" />
+
+                            <div class="mt-4">
+                                <Card title="'Card 2'"/>
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-light text-center py-2">
+                            <small
+                                class="text-muted"
+                            >Learning Owl Components - Chapter 1</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

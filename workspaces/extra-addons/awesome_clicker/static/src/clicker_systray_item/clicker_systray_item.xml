@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<templates xml:space="preserve">
+    <t t-name="awesome_clicker.ClickerSystray">
+        <div class="o_nav_entry" t-ref="buttonRef">
+            <div>
+                <!-- Clicks: <t t-esc="state.countClick"/> -->
+
+                <!-- <button class="btn btn-success" t-on-click.stop="buttonClick">
+                    <i class="fa fa-plus"/>
+                </button> -->
+                <button class="btn btn-danger" t-on-click.stop="openClientAction">
+                    Open
+                </button>
+            </div>
+        </div>
+    </t>
+</templates>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="awesome_owl.counter">
+        <div class="counter-component p-3 border rounded bg-light text-center">
+            <h3 class="text-secondary">Counter Sub-component</h3>
+            <div class="display-4 fw-bold text-success my-3">
+                <t t-esc="state.valueCounter" />
+            </div>
+            <button class="btn btn-success" t-on-click="increment">
+                <i class="fa fa-plus me-1" />Add 1
+            </button>
+        </div>
+    </t>
+</templates>

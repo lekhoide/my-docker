@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="for_rent" model="estate.property.tag">
+        <field name="name">For Rent</field>
+    </record>
+
+    <record id="for_sale" model="estate.property.tag">
+        <field name="name">For Sale</field>
+    </record>
+</odoo>

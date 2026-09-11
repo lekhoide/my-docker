@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <t t-name="awesome_dashboard.AwesomeDashboard">
+        <div class="o_action">
+            <Layout display="{ controlPanel: {} }" className="'o_dashboard h-100'">
+                <t t-set-slot="layout-buttons">
+                    <button class="btn btn-primary" t-on-click="openCustomerView">Customers</button>
+                    <button class="btn btn-primary" t-on-click="openLeads">Leads</button>
+                </t>
+
+                <t t-set-slot="control-panel-additional-actions">
+                    <button t-on-click="openConfiguration" class="btn p-0 ms-1 border-0">
+                        <i class="fa fa-cog"/>
+                    </button>
+                </t>
+
+                <div class="d-flex flex-wrap">
+                    <DashboardItem size="1">
+                        <t t-set-slot="default">
+                            <div class="o_dashboard_stat">
+                                <p>Average amount of t-shirt by order this month</p>
+                                <p><t t-esc="dataStatistics.average_quantity"/></p>
+                            </div>
+                        </t>
+                    </DashboardItem>
+                    <DashboardItem size="3">
+                        <t t-set-slot="default">
+                            <div class="o_dashboard_stat">
+                                <p>Average time for an order to go from 'new' to 'sent' or 'cancelled'</p>
+                                <p><t t-esc="dataStatistics.average_time"/></p>
+                            </div>
+                        </t>
+                    </DashboardItem>
+                    <DashboardItem size="1">
+                        <t t-set-slot="default">
+                            <div class="o_dashboard_stat">
+                                <p>Number of new orders this month</p>
+                                <p><t t-esc="dataStatistics.nb_new_orders"/></p>
+                            </div>
+                        </t>
+                    </DashboardItem>
+                    <DashboardItem size="1">
+                        <t t-set-slot="default">
+                            <div class="o_dashboard_stat">
+                                <p>Number of cancelled orders this month</p>
+                                <p><t t-esc="dataStatistics.nb_cancelled_orders"/></p>
+                            </div>
+                        </t>
+                    </DashboardItem>
+                    <DashboardItem size="1">
+                        <t t-set-slot="default">
+                            <div class="o_dashboard_stat">
+                                <p>Total amount of new orders this month</p>
+                                <p><t t-esc="dataStatistics.total_amount"/></p>
+                            </div>
+                        </t>
+                    </DashboardItem>
+                    <DashboardItem size="1">
+                        <t t-set-slot="default">
+                            <div class="o_dashboard_stat">
+                                <PieChart label="'Shirt orders by size'" data="dataStatistics.orders_by_size"/>
+                            </div>
+                        </t>
+                    </DashboardItem>
+                    <t t-foreach="genericItems" t-as="item" t-key="item.id">
+                        <DashboardItem t-if="!state.disabledItems.includes(item.id)" size="item.size || 1">
+                            <t t-set="itemProp" t-value="item.props ? item.props(dataStatistics) : {'data': dataStatistics}"/>
+                            <t t-component="item.Component" t-props="itemProp" />
+                        </DashboardItem>
+                    </t>
+                </div>
+            </Layout>
+        </div>
+    </t>
+
+</templates>

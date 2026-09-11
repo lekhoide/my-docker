@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <t t-name="awesome_owl.todoitem">
+        <!-- Item 1: Đang làm -->
+        <div class="list-group-item d-flex align-items-center py-3 border-bottom shadow-sm-hover">
+            <span class="me-3 fw-bold text-muted"><t t-esc="props.index"/></span>
+            <div class="form-check flex-grow-1">
+                <input class="form-check-input me-2" type="checkbox" t-att-id="item.id" t-on-click.stop="toggleState"/>
+                <label class="form-check-label fs-5" t-att-class="{'text-decoration-line-through text-muted': item.isCompleted}" t-att-for="item.id">
+                    <t t-esc="item.description"/>
+                </label>
+            </div>
+            <button class="btn btn-outline-danger btn-sm border-0 rounded-circle" t-on-click="toggleRemove">
+                <i class="fa fa-trash"></i>
+            </button>
+            <!-- <t t-set="foo" t-value="42"/>
+            <t t-if="foo == 42">
+                <t t-debug=""/>
+            </t> -->
+        </div>
+
+        <!-- Item 2: Đã hoàn thành (Gạch chữ, mờ) -->
+        <!-- <div class="list-group-item d-flex align-items-center py-3 border-bottom bg-light">
+            <span class="me-3 fw-bold text-muted">2.</span>
+            <div class="form-check flex-grow-1">
+                <input class="form-check-input me-2" type="checkbox" id="todo2" checked="checked"/>
+                <label class="form-check-label fs-5 text-decoration-line-through text-muted" for="todo2">
+                    Cài đặt môi trường Odoo 18
+                </label>
+            </div>
+            <button class="btn btn-outline-danger btn-sm border-0 rounded-circle">
+                <i class="fa fa-trash"></i>
+            </button>
+        </div> -->
+
+        <!-- Item 3: Đang làm -->
+        <!-- <div class="list-group-item d-flex align-items-center py-3 border-bottom">
+            <span class="me-3 fw-bold text-muted">3.</span>
+            <div class="form-check flex-grow-1">
+                <input class="form-check-input me-2" type="checkbox" id="todo3"/>
+                <label class="form-check-label fs-5" for="todo3">
+                    Tìm hiểu về Reactive State
+                </label>
+            </div>
+            <button class="btn btn-outline-danger btn-sm border-0 rounded-circle">
+                <i class="fa fa-trash"></i>
+            </button>
+        </div> -->
+    </t>
+
+    <t t-name="awesome_owl.todolist">
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-6">
+                    <div class="card shadow-lg border-0 rounded-3">
+                        <!-- Header -->
+                        <div class="card-header bg-primary text-white py-3">
+                            <h3 class="mb-0 text-center">
+                                <i class="fa fa-list-check me-2"></i>My Todo List
+                            </h3>
+                        </div>
+
+                        <div class="card-body p-4">
+                            <!-- Input Section -->
+                            <div class="input-group mb-4">
+                                <input 
+                                    type="text" 
+                                    class="form-control form-control-lg border-primary-subtle" 
+                                    placeholder="Add a new task..." 
+                                    aria-label="New task"
+                                    t-ref="todo-input"
+                                />
+                                <button class="btn btn-primary px-4" type="button" t-on-click.prevent="addTodo">
+                                    <i class="fa fa-plus-circle me-1"></i>Add
+                                </button>
+                            </div>
+
+                            <!-- Todo List -->
+                            <div class="list-group list-group-flush">
+                                <t t-foreach="this.todos" t-as="item" t-key="item.id">
+                                    <Todoitem index="item_index + 1"
+                                        id="item.id"
+                                        description="item.description"
+                                        isCompleted="item.isCompleted"
+                                        onChange="(val) => this.removeTodo(val)"
+                                        onToggle="(val) => this.toggleState(val)"
+                                        />
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- Footer Info -->
+                        <div class="card-footer bg-white text-center py-2 border-0">
+                            <small class="text-muted">You have <t t-esc="countPendingTasks"/> pending tasks</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

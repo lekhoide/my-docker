@@ -1,0 +1,16 @@
+.o_dashboard {
+    background-color: gray;
+    .o_dashboard_stat {
+        text-align: center;
+        font-weight: bold;
+
+        p:first-child {
+            font-size: 1.2rem;
+        }
+
+        p:last-child {
+            font-size: 2rem;
+            color: #28a745; // Modern green
+        }
+    }
+}

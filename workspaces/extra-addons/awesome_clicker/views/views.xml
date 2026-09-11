@@ -1,0 +1,60 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+<!--
+    <record model="ir.ui.view" id="awesome_clicker.list">
+      <field name="name">awesome_clicker list</field>
+      <field name="model">awesome_clicker.awesome_clicker</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="name"/>
+          <field name="value"/>
+          <field name="value2"/>
+        </list>
+      </field>
+    </record>
+-->
+
+    <!-- actions opening views on models -->
+<!--
+    <record model="ir.actions.act_window" id="awesome_clicker.action_window">
+      <field name="name">awesome_clicker window</field>
+      <field name="res_model">awesome_clicker.awesome_clicker</field>
+      <field name="view_mode">list,form</field>
+    </record>
+-->
+
+    <!-- server action to the one above -->
+<!--
+    <record model="ir.actions.server" id="awesome_clicker.action_server">
+      <field name="name">awesome_clicker server</field>
+      <field name="model_id" ref="model_awesome_clicker_awesome_clicker"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "list,form",
+          "res_model": model._name,
+        }
+      </field>
+    </record>
+-->
+
+    <!-- Top menu item -->
+<!--
+    <menuitem name="awesome_clicker" id="awesome_clicker.menu_root"/>
+-->
+    <!-- menu categories -->
+<!--
+    <menuitem name="Menu 1" id="awesome_clicker.menu_1" parent="awesome_clicker.menu_root"/>
+    <menuitem name="Menu 2" id="awesome_clicker.menu_2" parent="awesome_clicker.menu_root"/>
+-->
+    <!-- actions -->
+<!--
+    <menuitem name="List" id="awesome_clicker.menu_1_list" parent="awesome_clicker.menu_1"
+              action="awesome_clicker.action_window"/>
+    <menuitem name="Server to list" id="awesome_clicker" parent="awesome_clicker.menu_2"
+              action="awesome_clicker.action_server"/>
+-->
+  </data>
+</odoo>

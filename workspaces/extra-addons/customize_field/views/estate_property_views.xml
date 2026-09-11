@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="estate_property_view_form_inherit" model="ir.ui.view">
+        <field name="name">estate.property.form.inherit</field>
+        <field name="model">estate.property</field>
+        <field name="inherit_id" ref="estate.estate_property_view_form"/>
+        <field name="arch" type="xml">
+            <field name="garage" position="attributes">
+                <attribute name="widget">boolean_color</attribute>
+            </field>
+            <field name="description" position="attributes">
+                <attribute name="widget">text_color</attribute>
+            </field>
+        </field>
+    </record>
+
+</odoo>

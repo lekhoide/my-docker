@@ -1,0 +1,42 @@
+# -*- coding: utf-8 -*-
+
+from odoo import models, Command
+
+class EstateProperty(models.Model):
+
+    # -- Private Attributes --
+
+    _inherit = "estate.property"
+
+    # -- Action Methods --
+
+    def action_sold(self):
+        # import ipdb; ipdb.set_trace()
+        res = super().action_sold()
+        # journal = self.env["account.journal"].search(["type", "=", "sale"], limit=1)
+        # Another way to get the journal
+        journal = self.env["account.move"].sudo().with_context(default_move_type="out_invoice")._get_default_journal()
+        self.check_access_rights("write")
+        self.check_access_rule("write")
+        for prop in self:
+            self.env["account.move"].sudo().create(
+                {
+                    "partner_id": prop.partner_id.id,
+                    "move_type": "out_invoice",
+                    "journal_id": journal.id,
+                    "invoice_line_ids": [
+                        Command.create({
+                            "name": prop.name,
+                            "quantity": 1.0,
+                            "price_unit": prop.selling_price * 6.0 / 100.0,
+                        }),
+                        Command.create({
+                            "name": "Administrative fees",
+                            "quantity": 1.0,
+                            "price_unit": 100.0,
+                        }),
+                    ],
+                }
+            )
+        return res
+
