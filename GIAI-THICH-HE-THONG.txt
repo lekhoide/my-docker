@@ -1,0 +1,287 @@
+===================================================================
+GIẢI THÍCH HỆ THỐNG: NEXT.JS (FRONTEND) + WORDPRESS (BACKEND/CMS)
+===================================================================
+
+MỤC LỤC
+-------
+1. Tổng quan kiến trúc hệ thống
+2. Next.js là gì, App Router hoạt động thế nào
+3. Giải thích từng file/thư mục trong project
+4. Docker: vai trò từng file, cách các container nói chuyện với nhau
+5. Luồng dữ liệu: từ lúc bạn đăng bài trên WordPress đến lúc hiện ra
+   trên trình duyệt
+6. Các khái niệm hay gây nhầm lẫn (đã gặp trong quá trình debug)
+
+
+===================================================================
+1. TỔNG QUAN KIẾN TRÚC HỆ THỐNG
+===================================================================
+
+Đây là mô hình "Headless CMS":
+
+    [Trình duyệt]
+          |
+          | http://localhost:3000
+          v
+    [Container: nextjs-dev]  --- frontend, hiển thị giao diện
+          |
+          | http://wordpress/wp-json/wp/v2/...  (gọi qua mạng nội bộ Docker)
+          v
+    [Container: wordpress]   --- backend, chỉ dùng để quản trị nội dung
+          |
+          | kết nối MySQL
+          v
+    [Container: mariadb]     --- lưu trữ dữ liệu (bài viết, user, cấu hình)
+
+WordPress trong mô hình này KHÔNG hiển thị giao diện cho người dùng cuối.
+Nó chỉ đóng vai trò là nơi bạn soạn bài viết (qua wp-admin) và cung cấp
+dữ liệu đó dưới dạng JSON thông qua REST API (đường dẫn /wp-json/...).
+Next.js là bên duy nhất người dùng thực sự nhìn thấy.
+
+
+===================================================================
+2. NEXT.JS LÀ GÌ, APP ROUTER HOẠT ĐỘNG THẾ NÀO
+===================================================================
+
+Next.js là một framework xây dựng trên React, thêm vào các khả năng:
+  - Định tuyến (routing) dựa trên cấu trúc thư mục, không cần cấu hình
+    router thủ công.
+  - Render trên server (Server-Side Rendering) hoặc tạo trang tĩnh
+    (Static Site Generation), giúp trang tải nhanh và tốt cho SEO.
+  - ISR (Incremental Static Regeneration): trang được cache như static,
+    nhưng tự làm mới định kỳ mà không cần build lại toàn bộ site.
+
+QUY TẮC ĐỊNH TUYẾN (App Router - dùng trong project này):
+  - Mọi thứ nằm trong thư mục "src/app/"
+  - Mỗi THƯ MỤC con là một ROUTE (một địa chỉ URL)
+  - File "page.tsx" trong thư mục đó là NỘI DUNG hiển thị của route đó
+  - Thư mục đặt tên trong dấu ngoặc vuông [ten] là ROUTE ĐỘNG, giá trị
+    thật trong URL sẽ được truyền vào code qua "params"
+
+  Ví dụ trong project này:
+    src/app/page.tsx              ->  route "/"              (trang chủ)
+    src/app/posts/[slug]/page.tsx ->  route "/posts/xyz"      (xyz là động,
+                                       lấy từ URL thật, ví dụ "/posts/hello-world")
+
+SERVER COMPONENT (mặc định):
+  Component trong App Router mặc định chạy TRÊN SERVER (bên trong
+  container Next.js), không chạy trên trình duyệt. Vì vậy:
+  - Có thể dùng "async function" + "await fetch(...)" thẳng trong
+    component, không cần useEffect/useState như React truyền thống.
+  - Vì chạy trên server, mọi địa chỉ gọi API (như tới WordPress) phải
+    là địa chỉ mà SERVER (container) truy cập được, KHÔNG PHẢI địa chỉ
+    mà trình duyệt của bạn truy cập được. Đây là nguồn gốc của các lỗi
+    "fetch failed" đã gặp khi dùng nhầm "localhost:8080" thay vì
+    "wordpress" bên trong code Next.js.
+
+
+===================================================================
+3. GIẢI THÍCH TỪNG FILE / THƯ MỤC TRONG PROJECT NEXT.JS
+===================================================================
+
+nextjs-app/
+|
+|-- package.json
+|       Khai báo tên project, các thư viện cần cài (dependencies),
+|       và các lệnh chạy được (npm run dev, npm run build...).
+|       Đây là file quan trọng nhất để Docker biết cần cài gì.
+|
+|-- package-lock.json
+|       Ghi lại CHÍNH XÁC phiên bản của từng thư viện (kể cả thư viện
+|       phụ thuộc gián tiếp) đã được cài. Đảm bảo mọi máy/container
+|       cài ra kết quả giống hệt nhau. KHÔNG nên sửa tay file này.
+|
+|-- tsconfig.json
+|       Cấu hình TypeScript: quy tắc kiểm tra kiểu dữ liệu, và khai báo
+|       đường dẫn tắt "@/..." trỏ vào thư mục "src/".
+|
+|-- next.config.ts
+|       File cấu hình chính của Next.js. Trong project này đã bật:
+|         output: "standalone"
+|       nghĩa là khi build production, Next.js sẽ tự đóng gói ra một
+|       server Node.js gọn nhẹ, không cần cài lại node_modules đầy đủ
+|       khi chạy - giúp Dockerfile production nhẹ hơn nhiều.
+|
+|-- eslint.config.mjs
+|       Cấu hình ESLint - công cụ tự động kiểm tra lỗi code phổ biến,
+|       quy tắc viết code (ví dụ báo lỗi nếu khai báo biến không dùng).
+|
+|-- postcss.config.mjs
+|       Cấu hình PostCSS, cần thiết để Tailwind CSS hoạt động (Tailwind
+|       xử lý file CSS thông qua PostCSS).
+|
+|-- next-env.d.ts
+|       File TỰ ĐỘNG SINH RA bởi Next.js, khai báo kiểu TypeScript cho
+|       chính Next.js. KHÔNG được sửa tay file này.
+|
+|-- .env.local.example
+|       File MẪU biến môi trường. Copy thành ".env.local" nếu bạn muốn
+|       chạy "npm run dev" trực tiếp trên máy (không qua Docker).
+|       Khi chạy qua docker-compose, biến môi trường đã được set sẵn
+|       trong "environment:" của service, không cần file này.
+|
+|-- .gitignore
+|       Danh sách file/thư mục KHÔNG commit lên Git (ví dụ node_modules,
+|       .env, .next) - tránh đưa thư viện nặng hoặc secret lên repo.
+|
+|-- .dockerignore
+|       Tương tự .gitignore nhưng cho Docker: danh sách file KHÔNG copy
+|       vào bên trong Docker image khi build - giúp image nhẹ hơn và
+|       tránh rò rỉ file .env vào image.
+|
+|-- Dockerfile.dev
+|       Hướng dẫn Docker cách build ra một container CHỈ DÙNG CHO
+|       DEVELOPMENT: cài dependencies, copy code, chạy "npm run dev"
+|       (có hot-reload). KHÔNG dùng file này để deploy thật.
+|       (Dockerfile production multi-stage sẽ làm ở bước sau, dùng tên
+|       file "Dockerfile" không có ".dev").
+|
+|-- public/
+|       Chứa file tĩnh (ảnh, icon...) được phục vụ trực tiếp ở URL gốc.
+|       Ví dụ file "public/next.svg" truy cập được tại "/next.svg".
+|
+|-- src/
+    |
+    |-- app/                        (bắt buộc phải tên "app" - quy ước
+    |   |                            của Next.js App Router)
+    |   |
+    |   |-- layout.tsx               Khung giao diện DÙNG CHUNG cho mọi
+    |   |                            trang (ví dụ thẻ <html>, <body>,
+    |   |                            font chữ, menu điều hướng chung...).
+    |   |                            Mọi page.tsx đều được "bọc" bên
+    |   |                            trong layout.tsx này.
+    |   |
+    |   |-- globals.css              File CSS toàn cục, nơi import
+    |   |                            Tailwind CSS vào project.
+    |   |
+    |   |-- favicon.ico              Icon hiển thị trên tab trình duyệt.
+    |   |
+    |   |-- page.tsx                 TRANG CHỦ (route "/"). Gọi hàm
+    |   |                            getPosts() từ src/lib/wordpress.ts
+    |   |                            để lấy danh sách bài viết và hiển
+    |   |                            thị ra danh sách có link.
+    |   |
+    |   |-- posts/
+    |       |-- [slug]/
+    |           |-- page.tsx         TRANG CHI TIẾT bài viết (route
+    |                                 "/posts/ten-bai-viet"). "[slug]"
+    |                                 là phần động lấy từ URL. Gọi hàm
+    |                                 getPostBySlug() để lấy đúng 1 bài
+    |                                 viết rồi hiển thị nội dung đầy đủ.
+    |
+    |-- lib/
+    |   |-- wordpress.ts             NƠI DUY NHẤT chứa logic gọi WordPress
+    |                                 REST API (hàm getPosts, getPostBySlug,
+    |                                 getMediaById). Tách riêng khỏi phần
+    |                                 giao diện (page.tsx) để dễ bảo trì:
+    |                                 nếu sau này đổi cách lấy dữ liệu
+    |                                 (ví dụ chuyển sang WPGraphQL), chỉ
+    |                                 cần sửa file này, không đụng vào
+    |                                 giao diện.
+    |
+    |-- types/
+        |-- wordpress.ts             Định nghĩa kiểu dữ liệu TypeScript
+                                      (WordPressPost, WordPressMedia)
+                                      khớp với cấu trúc JSON mà WordPress
+                                      REST API trả về. Giúp code có gợi ý
+                                      và bắt lỗi ngay lúc viết, thay vì
+                                      lỗi ẩn xuất hiện lúc chạy.
+
+
+===================================================================
+4. DOCKER: VAI TRÒ TỪNG FILE VÀ CÁCH CÁC CONTAINER NÓI CHUYỆN
+===================================================================
+
+docker-compose.yml (nằm ngoài, ngang hàng với thư mục nextjs-app/)
+    Định nghĩa TOÀN BỘ hệ thống gồm 3 "service" (container):
+
+    - service "wordpress"
+        Dùng sẵn image "wordpress:beta-php8.5" (Apache + PHP có sẵn
+        WordPress) tải từ Docker Hub, không cần tự viết Dockerfile.
+        Map cổng 8080 (máy bạn) -> 80 (bên trong container).
+
+    - service "mariadb"
+        Dùng sẵn image "mariadb:12.3.2", chứa database MySQL/MariaDB.
+        Không cần map port ra ngoài vì chỉ WordPress cần gọi tới nó,
+        không cần bạn truy cập trực tiếp từ máy.
+
+    - service "nextjs-dev"
+        Dùng Dockerfile.dev (tự viết, nằm trong thư mục nextjs-app/)
+        để BUILD RA một image riêng cho project của bạn, vì Next.js
+        không có image dựng sẵn như WordPress/MariaDB.
+        Map cổng 3000 (máy bạn) -> 3000 (bên trong container).
+
+MẠNG NỘI BỘ DOCKER (Docker network):
+    Khi chạy "docker compose up", Docker TỰ ĐỘNG tạo ra một mạng riêng
+    kết nối cả 3 container lại với nhau, và tự cấu hình DNS nội bộ để
+    mỗi container gọi container khác bằng ĐÚNG TÊN SERVICE đã khai báo
+    trong file .yml (ví dụ container "nextjs-dev" gọi tới "wordpress"
+    bằng địa chỉ "http://wordpress/...", không cần biết IP thật).
+
+    Mạng nội bộ này CHỈ tồn tại giữa các container, trình duyệt trên
+    máy bạn KHÔNG nằm trong mạng đó. Đây là lý do:
+      - Trong CODE Next.js (chạy trong container)  ->  dùng "wordpress"
+      - Trên TRÌNH DUYỆT của bạn (ngoài container)  ->  dùng "localhost:8080"
+
+COMPOSE WATCH (khai báo trong docker-compose.yml, mục "develop: watch:"):
+    Cơ chế tự đồng bộ code từ máy bạn vào bên trong container mỗi khi
+    bạn lưu file, giúp hot-reload hoạt động mà không cần build lại
+    image thủ công mỗi lần sửa code.
+
+
+===================================================================
+5. LUỒNG DỮ LIỆU: TỪ LÚC ĐĂNG BÀI ĐẾN LÚC HIỂN THỊ
+===================================================================
+
+  1. Bạn đăng nhập http://localhost:8080/wp-admin, viết và đăng 1 bài.
+  2. WordPress lưu bài viết đó vào database (container mariadb).
+  3. Bạn mở http://localhost:3000 trên trình duyệt.
+  4. Request đi tới container "nextjs-dev".
+  5. Next.js (chạy trên server, trong container) thực thi hàm
+     getPosts() trong src/lib/wordpress.ts, gửi request tới
+     "http://wordpress/wp-json/wp/v2/posts" (qua mạng nội bộ Docker).
+  6. WordPress nhận request, truy vấn MariaDB, trả kết quả về dạng JSON.
+  7. Next.js nhận JSON đó, render ra HTML (theo giao diện viết trong
+     page.tsx), rồi trả HTML hoàn chỉnh về trình duyệt của bạn.
+  8. Nhờ "next: { revalidate: 60 }" trong lib/wordpress.ts, kết quả
+     này được cache lại 60 giây - lần load sau trong vòng 60s sẽ
+     nhanh hơn vì không phải gọi lại WordPress; sau 60s Next.js sẽ tự
+     gọi lại ở lần truy cập tiếp theo để lấy nội dung mới nhất.
+
+
+===================================================================
+6. CÁC KHÁI NIỆM HAY GÂY NHẦM LẪN (rút từ quá trình debug thực tế)
+===================================================================
+
+- "localhost" nghĩa là khác nhau tùy NƠI đoạn code đó đang CHẠY:
+    + Chạy trên trình duyệt của bạn  -> "localhost" = máy bạn
+    + Chạy bên trong 1 container     -> "localhost" = chính container đó,
+                                         KHÔNG PHẢI máy bạn, cũng KHÔNG
+                                         PHẢI container khác.
+
+- Cổng "map ra ngoài" (ví dụ 8080:80) chỉ có tác dụng cho kết nối
+  TỪ BÊN NGOÀI Docker (trình duyệt, Postman trên máy bạn...). Các
+  container gọi nhau KHÔNG dùng cổng map này, mà dùng cổng NỘI BỘ
+  (ví dụ WordPress luôn là cổng 80 dù bạn map ra 8080 hay 9999 gì
+  cũng vậy).
+
+- Lỗi HTTP 404 nghĩa là ĐÃ kết nối được tới server, nhưng server báo
+  "không tìm thấy đường dẫn này". Với WordPress, lỗi 404 ở /wp-json/
+  gần như luôn do cấu hình Permalinks đang ở chế độ "Plain" (mặc định
+  lúc mới cài) - cần vào wp-admin > Settings > Permalinks > chọn
+  "Post name" > Save để kích hoạt.
+
+- Lỗi "fetch failed" (không có mã HTTP) nghĩa là KHÔNG kết nối được
+  tới server (network-level), khác hẳn với lỗi 404. Nguyên nhân
+  thường là gọi sai địa chỉ (ví dụ dùng "localhost" trong code chạy
+  bên trong container, đáng lẽ phải dùng tên service).
+
+- Sửa biến môi trường trong docker-compose.yml KHÔNG tự áp dụng cho
+  container đang chạy. Cần chạy lại:
+      docker compose up -d <ten-service>
+  để container đọc lại giá trị mới.
+
+
+===================================================================
+HẾT
+===================================================================

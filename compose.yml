@@ -1,0 +1,50 @@
+name: my-wordpress
+
+services:
+    wordpress:
+        image: wordpress:beta-php8.5
+        restart: unless-stopped
+        ports:
+            - 8080:80
+        environment:
+            WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+            WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+            WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+            WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+        volumes:
+            - wordpress-data:/var/www/html
+        depends_on:
+            - mariadb
+
+    mariadb:
+        image: mariadb:12.3.2
+        restart: always
+        environment:
+            MARIADB_USER: ${MARIADB_USER}
+            MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+            MARIADB_DATABASE: ${MARIADB_DATABASE}
+            MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+        volumes:
+            - mariadb-data:/var/lib/mysql
+
+    nextjs:
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        image: nextjs:dev
+        container_name: nextjs
+        restart: unless-stopped
+        user: "${UID:-1000}:${GID:-1000}"
+        ports:
+            - 3000:3000
+        environment:
+            WATCHPACK_POLLING: "true"
+            WORDPRESS_API_URL: http://wordpress/wp-json/wp/v2
+        depends_on:
+            - wordpress
+        volumes:
+            - .:/app
+
+volumes:
+    wordpress-data:
+    mariadb-data:

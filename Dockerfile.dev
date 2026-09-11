@@ -1,0 +1,19 @@
+# ============================================
+# Dockerfile.dev — Container Next.js dùng chung cho cả việc TẠO project
+# lẫn CHẠY dev sau này. Chỉ chứa sẵn Node.js + npm, KHÔNG copy code,
+# KHÔNG cài dependency lúc build - vì project chưa tồn tại, bạn sẽ tự
+# tạo và tự cài qua "docker compose exec".
+#
+# KHÔNG cần xử lý UID/GID ở đây - việc chạy container bằng UID nào do
+# field "user:" trong docker-compose.yml quyết định (tính năng có sẵn
+# của Docker Compose), không cần chỉnh sửa gì trong Dockerfile.
+# ============================================
+
+FROM node:24-slim
+
+WORKDIR /app
+
+# Không CMD "npm run dev" vì chưa có package.json để chạy.
+# Giữ container sống để bạn "docker compose exec" vào, tự làm mọi việc:
+# tạo project, cài thư viện, chạy dev server... tuỳ ý.
+CMD ["sleep", "infinity"]
